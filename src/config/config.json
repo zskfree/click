@@ -9,5 +9,5 @@
     "log_level": "INFO",
     "log_file": "data/logs/app.log",
     "max_log_size": 1048576,
-    "backup_count": 5
+    "backup_count": 0
 }

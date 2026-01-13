@@ -11,7 +11,7 @@ from pynput import keyboard
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from src.core import ClickRecorder, ImageClicker
-from src.ui import ConfigUI
+from src.ui import ConfigUI, Theme
 from src.utils import setup_global_logging
 
 class UITextHandler(logging.Handler):
@@ -94,82 +94,78 @@ class MainApp:
 
     def create_widgets(self):
         # 设置窗口样式
-        self.root.configure(bg='#f0f0f0')
-        self.root.geometry("800x600")
+        self.root.configure(bg=Theme.BG_MAIN)
+        self.root.geometry("800x810")
         self.root.resizable(True, True)
         
         # 创建样式
         style = ttk.Style()
-        style.configure('TFrame', background='#f0f0f0')
-        style.configure('TLabelFrame', background='#f0f0f0', borderwidth=2, relief='groove')
-        style.configure('TLabelFrame.Label', background='#f0f0f0', foreground='#333333', font=('Microsoft YaHei', 10, 'bold'))
-        style.configure('TButton', font=('Microsoft YaHei', 9), padding=6)
-        style.configure('TLabel', background='#f0f0f0', font=('Microsoft YaHei', 9))
+        Theme.apply_ttk_styles(style)
         
         # 标题
         title_frame = ttk.Frame(self.root)
         title_frame.grid(row=0, column=0, columnspan=2, padx=20, pady=10, sticky="ew")
-        title_label = ttk.Label(title_frame, text="🔥 智能点击精灵", font=('Microsoft YaHei', 16, 'bold'), foreground='#2E86C1')
+        title_label = ttk.Label(title_frame, text="🔥 智能点击精灵", font=Theme.FONT_TITLE, foreground=Theme.ACCENT)
         title_label.pack()
         
         # 左侧控制面板
         left_frame = ttk.LabelFrame(self.root, text="🎮 控制面板")
-        left_frame.grid(row=1, column=0, padx=10, pady=5, sticky="nsew")
+        left_frame.grid(row=1, column=0, padx=15, pady=10, sticky="nsew")
         
         # 点击记录控制
         record_frame = ttk.LabelFrame(left_frame, text="📝 点击记录")
-        record_frame.pack(fill=tk.X, padx=5, pady=5)
+        record_frame.pack(fill=tk.X, padx=8, pady=8)
         
-        ttk.Button(record_frame, text="▶️ 开始记录", command=self.start_recording).pack(fill=tk.X, padx=5, pady=2)
-        ttk.Button(record_frame, text="⏹️ 停止记录", command=self.stop_recording).pack(fill=tk.X, padx=5, pady=2)
-        ttk.Button(record_frame, text="🎬 播放点击", command=self.play_clicks).pack(fill=tk.X, padx=5, pady=2)
+        ttk.Button(record_frame, text="▶️ 开始记录", command=self.start_recording).pack(fill=tk.X, padx=5, pady=4)
+        ttk.Button(record_frame, text="⏹️ 停止记录", command=self.stop_recording).pack(fill=tk.X, padx=5, pady=4)
+        ttk.Button(record_frame, text="🎬 播放点击", command=self.play_clicks).pack(fill=tk.X, padx=5, pady=4)
         
         # 图片识别控制
         image_frame = ttk.LabelFrame(left_frame, text="🖼️ 图片识别")
-        image_frame.pack(fill=tk.X, padx=5, pady=5)
+        image_frame.pack(fill=tk.X, padx=8, pady=8)
         
-        ttk.Button(image_frame, text="🔍 开始识别", command=self.start_image_click).pack(fill=tk.X, padx=5, pady=2)
-        ttk.Button(image_frame, text="⏹️ 停止识别", command=self.stop_image_click).pack(fill=tk.X, padx=5, pady=2)
+        ttk.Button(image_frame, text="🔍 开始识别", command=self.start_image_click).pack(fill=tk.X, padx=5, pady=4)
+        ttk.Button(image_frame, text="⏹️ 停止识别", command=self.stop_image_click).pack(fill=tk.X, padx=5, pady=4)
         
         # 全局控制
         global_frame = ttk.LabelFrame(left_frame, text="⚡ 全局控制")
-        global_frame.pack(fill=tk.X, padx=5, pady=5)
+        global_frame.pack(fill=tk.X, padx=8, pady=8)
         
-        ttk.Button(global_frame, text="🚨 全局停止 (ESC)", command=self.global_stop).pack(fill=tk.X, padx=5, pady=2)
-        ttk.Button(global_frame, text="⚙️ 配置参数", command=self.open_config).pack(fill=tk.X, padx=5, pady=2)
+        ttk.Button(global_frame, text="🚨 全局停止 (ESC)", command=self.global_stop).pack(fill=tk.X, padx=5, pady=4)
+        ttk.Button(global_frame, text="⚙️ 配置参数", command=self.open_config).pack(fill=tk.X, padx=5, pady=4)
         
         # 右侧设置面板
         right_frame = ttk.LabelFrame(self.root, text="🔧 设置面板")
-        right_frame.grid(row=1, column=1, padx=10, pady=5, sticky="nsew")
+        right_frame.grid(row=1, column=1, padx=15, pady=10, sticky="nsew")
         
         # 循环次数设置
         loop_frame = ttk.Frame(right_frame)
-        loop_frame.pack(fill=tk.X, padx=5, pady=5)
+        loop_frame.pack(fill=tk.X, padx=5, pady=10)
         ttk.Label(loop_frame, text="🔄 循环次数:").pack(side=tk.LEFT, padx=5)
         ttk.Entry(loop_frame, textvariable=self.loop_times, width=8).pack(side=tk.LEFT, padx=5)
         ttk.Button(loop_frame, text="✅ 更新", command=self.update_loop_times).pack(side=tk.LEFT, padx=5)
         
         # 状态显示框架
         status_frame = ttk.LabelFrame(right_frame, text="📊 运行状态")
-        status_frame.pack(fill=tk.X, padx=5, pady=10)
+        status_frame.pack(fill=tk.X, padx=5, pady=15)
         
         # 状态标签
         status_container = ttk.Frame(status_frame)
-        status_container.pack(fill=tk.X, padx=5, pady=5)
+        status_container.pack(fill=tk.X, padx=5, pady=8)
         ttk.Label(status_container, text="状态:").pack(side=tk.LEFT, padx=5)
-        status_label = ttk.Label(status_container, textvariable=self.status_var, foreground='#28B463', font=('Microsoft YaHei', 10, 'bold'))
+        status_label = ttk.Label(status_container, textvariable=self.status_var, foreground=Theme.SUCCESS, font=Theme.FONT_HEADER)
         status_label.pack(side=tk.LEFT, padx=5)
         
         # 进度条
         progress_container = ttk.Frame(status_frame)
-        progress_container.pack(fill=tk.X, padx=5, pady=5)
+        progress_container.pack(fill=tk.X, padx=5, pady=8)
         ttk.Label(progress_container, text="进度:").pack(side=tk.LEFT, padx=5)
         self.progress_bar = ttk.Progressbar(
             progress_container, 
             variable=self.progress_var, 
             maximum=100, 
             length=200,
-            mode='determinate'  # 明确指定为确定模式
+            mode='determinate'
         )
         self.progress_bar.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
         # 进度百分比标签
@@ -178,31 +174,16 @@ class MainApp:
         
         # 日志显示区域
         log_frame = ttk.LabelFrame(self.root, text="📋 运行日志")
-        log_frame.grid(row=2, column=0, columnspan=2, padx=10, pady=5, sticky="nsew")
+        log_frame.grid(row=2, column=0, columnspan=2, padx=15, pady=10, sticky="nsew")
         
         # 创建文本框用于显示日志
-        self.log_text = tk.Text(log_frame, height=8, wrap=tk.WORD, font=('Consolas', 9))
+        self.log_text = tk.Text(log_frame, height=8, wrap=tk.WORD, font=Theme.FONT_CODE, 
+                                bg=Theme.BG_PANEL, fg=Theme.FG_PRIMARY, relief='flat', padx=10, pady=10)
         scrollbar = ttk.Scrollbar(log_frame, orient=tk.VERTICAL, command=self.log_text.yview)
         self.log_text.configure(yscrollcommand=scrollbar.set)
         
-        self.log_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y, padx=5, pady=5)
-        
-        # 快捷操作区域
-        quick_frame = ttk.Frame(self.root, style='TFrame')
-        quick_frame.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
-        
-        quick_button = ttk.Button(quick_frame, 
-                                 text="⚙️ 快速配置", 
-                                 command=self.open_config,
-                                 style='TButton')
-        quick_button.pack(side=tk.LEFT, padx=5)
-        
-        quick_info = ttk.Label(quick_frame, 
-                              text="快速打开配置界面，调整所有运行参数",
-                              font=('Microsoft YaHei', 9),
-                              foreground='#7F8C8D')
-        quick_info.pack(side=tk.LEFT, padx=5)
+        self.log_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=2, pady=2)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y, padx=2, pady=2)
         
         # 设置网格权重
         self.root.grid_rowconfigure(1, weight=1)
@@ -468,6 +449,13 @@ class MainApp:
                     # 重新加载模板（如果图片目录改变）
                     self.clicker.folder_path = self.png_dir
                     self.clicker.templates = self.clicker.load_templates()
+
+                    # 重新配置日志（应用新的日志文件/级别设置）
+                    try:
+                        setup_global_logging(self.config)
+                        self.logger.info("日志配置已更新")
+                    except Exception as log_err:
+                        self.logger.exception(f"更新日志配置时出错: {log_err}")
                     
                     self.logger.info(f"已应用新配置: {self.config}")
                 except Exception as e:
