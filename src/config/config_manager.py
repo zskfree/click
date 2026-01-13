@@ -28,7 +28,9 @@ class ConfigManager:
             "wait_time": 5.0,
             "immediate_click": False,
             "log_level": "INFO",
-            "log_file": "app.log"
+            "log_file": "app.log",
+            "max_log_size": 1048576,
+            "backup_count": 5
         }
 
     def get(self, key, default=None):

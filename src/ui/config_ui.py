@@ -30,6 +30,9 @@ class ConfigUI:
         self.log_level = tk.StringVar(value=self.config.get('log_level', 'INFO'))
         self.log_file = tk.StringVar(value=self.config.get('log_file', 'app.log'))
         self.base_dir = tk.StringVar(value=self.config.get('base_dir', '.'))
+        # 将 max_log_size 从字节转换为 MB
+        self.max_log_size = tk.IntVar(value=self.config.get('max_log_size', 1048576) // (1024 * 1024))
+        self.backup_count = tk.IntVar(value=self.config.get('backup_count', 5))
 
         self.create_widgets()
 
@@ -61,7 +64,9 @@ class ConfigUI:
             "wait_time": 5.0,
             "immediate_click": False,
             "log_level": "INFO",
-            "log_file": "app.log"
+            "log_file": "app.log",
+            "max_log_size": 10485760,
+            "backup_count": 5
         }
 
     def create_widgets(self):
@@ -181,6 +186,18 @@ class ConfigUI:
         ttk.Label(log_file_frame, text="📄 日志文件:", style='Config.TLabel', width=20).pack(side=tk.LEFT)
         ttk.Entry(log_file_frame, textvariable=self.log_file, width=20).pack(side=tk.RIGHT, padx=5)
         
+        # 日志大小限制（MB）
+        max_log_size_frame = ttk.Frame(log_frame)
+        max_log_size_frame.pack(fill=tk.X, padx=10, pady=5)
+        ttk.Label(max_log_size_frame, text="💾 日志大小限制(MB):", style='Config.TLabel', width=20).pack(side=tk.LEFT)
+        ttk.Entry(max_log_size_frame, textvariable=self.max_log_size, width=20).pack(side=tk.RIGHT, padx=5)
+        
+        # 备份日志数量
+        backup_count_frame = ttk.Frame(log_frame)
+        backup_count_frame.pack(fill=tk.X, padx=10, pady=5)
+        ttk.Label(backup_count_frame, text="📦 备份日志数量:", style='Config.TLabel', width=20).pack(side=tk.LEFT)
+        ttk.Entry(backup_count_frame, textvariable=self.backup_count, width=20).pack(side=tk.RIGHT, padx=5)
+        
         # 按钮框架
         button_frame = ttk.Frame(main_frame)
         button_frame.pack(fill=tk.X, pady=(20, 0))
@@ -196,6 +213,8 @@ class ConfigUI:
             threshold = self.similarity.get()
             wait_time = self.wait_time.get()
             loop_times = self.loop_times.get()
+            max_log_size = self.max_log_size.get()
+            backup_count = self.backup_count.get()
             
             # 验证参数范围
             if click_interval < 0:
@@ -210,6 +229,12 @@ class ConfigUI:
             if loop_times < 1:
                 self._show_error("循环次数必须大于等于1")
                 return
+            if max_log_size < 1024:
+                self._show_error("日志大小限制必须大于等于1KB")
+                return
+            if backup_count < 1:
+                self._show_error("备份日志数量必须大于等于1")
+                return
             
             # 更新配置
             self.config['click_interval'] = click_interval
@@ -221,6 +246,9 @@ class ConfigUI:
             self.config['log_level'] = self.log_level.get()
             self.config['log_file'] = self.log_file.get().strip()
             self.config['base_dir'] = self.base_dir.get().strip()
+            # 将 MB 转换为字节
+            self.config['max_log_size'] = max_log_size * 1024 * 1024
+            self.config['backup_count'] = backup_count
             
             # 验证必填字段
             png_dir_path = self.config['png_dir']

@@ -7,5 +7,7 @@
     "wait_time": 0.1,
     "immediate_click": true,
     "log_level": "INFO",
-    "log_file": "data/logs/app.log"
+    "log_file": "data/logs/app.log",
+    "max_log_size": 1048576,
+    "backup_count": 5
 }
