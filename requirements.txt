@@ -1,0 +1,8 @@
+
+pyinstaller
+opencv-python-headless
+numpy
+pyautogui
+pynput
+pillow
+tkinter

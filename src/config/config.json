@@ -1,0 +1,11 @@
+{
+    "base_dir": ".",
+    "png_dir": "templates/png",
+    "click_interval": 0.1,
+    "loop_times": 5,
+    "threshold": 0.8,
+    "wait_time": 0.1,
+    "immediate_click": true,
+    "log_level": "INFO",
+    "log_file": "data/logs/app.log"
+}
