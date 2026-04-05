@@ -5,7 +5,7 @@ class ClickerBase(ABC):
     def __init__(self, config):
         self.config = config
         self.loop_times = config.get('loop_times', 1)
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = logging.getLogger(self.__module__)
 
     @abstractmethod
     def start(self):

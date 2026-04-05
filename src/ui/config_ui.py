@@ -4,6 +4,7 @@ import logging
 import json
 import os
 from .theme import Theme
+from ..config import ConfigManager
 
 class ConfigUI:
     def __init__(self, root, recorder, clicker, config_path='config.json', on_save=None):
@@ -57,18 +58,7 @@ class ConfigUI:
     
     def _get_default_config(self):
         """返回默认配置"""
-        return {
-            "png_dir": "png",
-            "click_interval": 0.1,
-            "loop_times": 1,
-            "threshold": 0.8,
-            "wait_time": 5.0,
-            "immediate_click": False,
-            "log_level": "INFO",
-            "log_file": "app.log",
-            "max_log_size": 10485760,
-            "backup_count": 5
-        }
+        return ConfigManager.default_config()
 
     def create_widgets(self):
         # 设置窗口样式

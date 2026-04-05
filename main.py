@@ -4,7 +4,6 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import threading
 import logging
-import json
 from pynput import keyboard
 
 # 添加src目录到路径中
@@ -12,6 +11,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from src.core import ClickRecorder, ImageClicker
 from src.ui import ConfigUI, Theme
+from src.config import ConfigManager
 from src.utils import setup_global_logging
 
 class UITextHandler(logging.Handler):
@@ -40,11 +40,15 @@ class MainApp:
         # 先初始化日志记录器，防止 load_config 中使用 self.logger 时未定义
         self.logger = logging.getLogger('main_app')
 
+        # 基础路径和配置管理
+        self.base_dir = os.path.dirname(os.path.abspath(__file__))
+        self.config_path = os.path.join(self.base_dir, 'src', 'config', 'config.json')
+        self.config_manager = ConfigManager(self.config_path)
+
         # 加载配置文件
         self.config = self.load_config()
 
-        # 获取当前文件所在目录和图片目录
-        self.base_dir = os.path.dirname(os.path.abspath(__file__))
+        # 获取图片目录
         self.png_dir = os.path.join(self.base_dir, self.config['png_dir'])
 
         # 初始化点击记录器和图片点击器
@@ -72,25 +76,7 @@ class MainApp:
         self.start_keyboard_listener()
 
     def load_config(self):
-        config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src', 'config', 'config.json')
-        try:
-            with open(config_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except FileNotFoundError:
-            self.logger.warning("配置文件不存在，使用默认配置")
-            return {
-                "png_dir": "templates/png",
-                "click_interval": 0.1,
-                "loop_times": 1,
-                "threshold": 0.8,
-                "wait_time": 5.0,
-                "immediate_click": False,
-                "log_level": "INFO",
-                "log_file": "data/logs/app.log"
-            }
-        except json.JSONDecodeError as e:
-            self.logger.error(f"配置文件格式错误: {e}")
-            raise
+        return self.config_manager.as_dict()
 
     def create_widgets(self):
         # 设置窗口样式
@@ -212,7 +198,7 @@ class MainApp:
         ui_handler.setLevel(logging.INFO)
         
         # 获取相关日志器并添加处理器
-        for logger_name in ['main_app', 'click_recorder', 'image_clicker']:
+        for logger_name in ['main_app', 'src.core.click_recorder', 'src.core.image_clicker']:
             logging.getLogger(logger_name).addHandler(ui_handler)
 
     def update_loop_times(self):
@@ -423,7 +409,6 @@ class MainApp:
     def open_config(self):
         """打开配置界面，带错误处理"""
         try:
-            config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src', 'config', 'config.json')
             config_window = tk.Toplevel(self.root)
             
             # 定义回调函数，用于保存后更新主程序配置
@@ -462,7 +447,7 @@ class MainApp:
                     self.logger.exception(f"应用新配置时出错: {e}")
                     messagebox.showerror("错误", f"应用配置时出错: {str(e)}")
 
-            ConfigUI(config_window, self.recorder, self.clicker, config_path, on_save=_on_config_saved)
+            ConfigUI(config_window, self.recorder, self.clicker, self.config_path, on_save=_on_config_saved)
             self.logger.info("打开配置界面")
         except Exception as e:
             self.logger.error(f"打开配置界面失败: {e}")
@@ -479,9 +464,9 @@ def get_log_path():
 
 if __name__ == "__main__":
     # 加载配置
-    config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src', 'config', 'config.json')
-    with open(config_path, 'r', encoding='utf-8') as f:
-        config = json.load(f)
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(base_dir, 'src', 'config', 'config.json')
+    config = ConfigManager(config_path).as_dict()
     
     # 设置日志
     setup_global_logging(config)
